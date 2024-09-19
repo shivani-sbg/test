@@ -142,55 +142,170 @@ form.addEventListener('submit', addTransaction);
 
 
 
- const balance = document.getElementById('balance');
+//  const balance = document.getElementById('balance');
+// const money_plus = document.getElementById('money-plus');
+// const money_minus = document.getElementById('money-minus');
+// const list = document.getElementById('list');
+// const form = document.getElementById('form');
+// const text = document.getElementById('text');
+// const amount = document.getElementById('amount');
+
+// const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
+// let Transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
+
+// // Add Transaction
+// function addTransaction(e) {
+//     e.preventDefault();
+//     if (text.value.trim() === '' || amount.value.trim() === '') {
+//         alert('Please Enter Text and Value...');
+//     } else {
+//         const Transaction = {
+//             id: generateID(),
+//             text: text.value,
+//             amount: Math.abs(+amount.value), // Automatically take the absolute value for input
+//         };
+        
+//         // Add positive/negative sign based on whether it's income or expense
+//         if (Transaction.amount > 0 && Transaction.amount < getTotalIncome()) {
+//             // If the amount is less than or equal to the income, treat it as an expense
+//             Transaction.amount = -Transaction.amount;
+//         }
+
+//         Transactions.push(Transaction);
+//         addTransactionDOM(Transaction);
+//         updateLocalStorage();
+//         updateValues();
+//         text.value = '';
+//         amount.value = '';
+//     }
+// }
+
+// // Generate id
+// function generateID() {
+//     return Math.floor(Math.random() * 100000000);
+// }
+
+// function addTransactionDOM(Transaction) {
+//     const sign = Transaction.amount > 0 ? '+' : '-';
+
+//     const item = document.createElement('li');
+//     item.classList.add(Transaction.amount < 0 ? 'minus' : 'plus');
+    
+//     item.innerHTML = `
+//         ${Transaction.text} <span>${sign}${Math.abs(Transaction.amount)}</span>
+//         <button class='delete-btn' onclick='removeTransaction(${Transaction.id})'>x</button>
+//     `;
+    
+//     list.appendChild(item);
+// }
+
+// // Remove transaction
+// function removeTransaction(id) {
+//     Transactions = Transactions.filter(transaction => transaction.id !== id);
+//     updateLocalStorage();
+//     Init();
+// }
+
+// // Update values (total, income, expenses)
+// function updateValues() {
+//     const amounts = Transactions.map(Transaction => Transaction.amount);
+//     const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
+//     const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
+//     const expense = (amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2);
+    
+//     balance.innerText = `$${total}`;
+//     money_plus.innerText = `$${income}`;
+//     money_minus.innerText = `$${expense}`;
+// }
+
+// // Get total income
+// function getTotalIncome() {
+//     const income = Transactions.map(Transaction =>
+//  Transaction.amount).filter(amount => amount > 0).reduce((acc, amount) => acc + amount, 0); return income; }
+
+// //Update local storage 
+// function updateLocalStorage() { localStorage.setItem('transactions', JSON.stringify(Transactions)); }
+
+ 
+//  //Init App
+//  function Init(){
+//      list.innerHTML='';
+//      Transactions.forEach(addTransactionDOM);
+//      updateValues();
+//  }
+// Init();
+
+// form.addEventListener('submit', addTransaction);
+
+
+
+
+
+
+
+const balance = document.getElementById('balance');
 const money_plus = document.getElementById('money-plus');
 const money_minus = document.getElementById('money-minus');
 const list = document.getElementById('list');
 const form = document.getElementById('form');
 const text = document.getElementById('text');
-const amount = document.getElementById('amount');
+const incomeAmount = document.getElementById('income-amount');
+const expenseAmount = document.getElementById('expense-amount');
 
 const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
 let Transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
 
 // Add Transaction
-function addTransaction(e) {
+function addTransaction(e){
     e.preventDefault();
-    if (text.value.trim() === '' || amount.value.trim() === '') {
-        alert('Please Enter Text and Value...');
+    
+    // Get input values and trim whitespaces
+    const transactionText = text.value.trim();
+    const incomeValue = incomeAmount.value.trim();
+    const expenseValue = expenseAmount.value.trim();
+
+    // Check if either income or expense is entered
+    if(transactionText === '' || (incomeValue === '' && expenseValue === '')){
+        alert('Please enter a description and either income or expense.');
     } else {
+        let transactionAmount;
+
+        // Determine if it's income or expense
+        if(incomeValue !== '') {
+            transactionAmount = +incomeValue; // Positive value for income
+        } else if(expenseValue !== '') {
+            transactionAmount = -expenseValue; // Negative value for expense
+        }
+
         const Transaction = {
             id: generateID(),
-            text: text.value,
-            amount: Math.abs(+amount.value), // Automatically take the absolute value for input
+            text: transactionText,
+            amount: transactionAmount
         };
-        
-        // Add positive/negative sign based on whether it's income or expense
-        if (Transaction.amount > 0 && Transaction.amount < getTotalIncome()) {
-            // If the amount is less than or equal to the income, treat it as an expense
-            Transaction.amount = -Transaction.amount;
-        }
 
         Transactions.push(Transaction);
         addTransactionDOM(Transaction);
         updateLocalStorage();
         updateValues();
+
+        // Clear the form inputs
         text.value = '';
-        amount.value = '';
+        incomeAmount.value = '';
+        expenseAmount.value = '';
     }
 }
 
-// Generate id
-function generateID() {
+// Generate ID
+function generateID(){
     return Math.floor(Math.random() * 100000000);
 }
 
-function addTransactionDOM(Transaction) {
+// Add transaction to DOM
+function addTransactionDOM(Transaction){
     const sign = Transaction.amount > 0 ? '+' : '-';
-
     const item = document.createElement('li');
+
     item.classList.add(Transaction.amount < 0 ? 'minus' : 'plus');
-    
     item.innerHTML = `
         ${Transaction.text} <span>${sign}${Math.abs(Transaction.amount)}</span>
         <button class='delete-btn' onclick='removeTransaction(${Transaction.id})'>x</button>
@@ -200,39 +315,36 @@ function addTransactionDOM(Transaction) {
 }
 
 // Remove transaction
-function removeTransaction(id) {
+function removeTransaction(id){
     Transactions = Transactions.filter(transaction => transaction.id !== id);
     updateLocalStorage();
     Init();
 }
 
-// Update values (total, income, expenses)
-function updateValues() {
+// Update balance, income, and expense values
+function updateValues(){
     const amounts = Transactions.map(Transaction => Transaction.amount);
     const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
     const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
     const expense = (amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2);
-    
+
     balance.innerText = `$${total}`;
     money_plus.innerText = `$${income}`;
     money_minus.innerText = `$${expense}`;
 }
 
-// Get total income
-function getTotalIncome() {
-    const income = Transactions.map(Transaction =>
- Transaction.amount).filter(amount => amount > 0).reduce((acc, amount) => acc + amount, 0); return income; }
+// Update local storage
+function updateLocalStorage(){
+    localStorage.setItem('transactions', JSON.stringify(Transactions));
+}
 
-//Update local storage 
-function updateLocalStorage() { localStorage.setItem('transactions', JSON.stringify(Transactions)); }
+// Initialize app
+function Init(){
+    list.innerHTML = '';
+    Transactions.forEach(addTransactionDOM);
+    updateValues();
+}
 
- 
- //Init App
- function Init(){
-     list.innerHTML='';
-     Transactions.forEach(addTransactionDOM);
-     updateValues();
- }
 Init();
 
 form.addEventListener('submit', addTransaction);
